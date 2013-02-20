@@ -1,0 +1,21 @@
+{
+  "name": "sasse-akademiska",
+  "version": "0.0.0",
+  "description": "academic sharing for sasse",
+  "private": true,
+
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:hhss/sasse-akademiska.git"
+  },
+  "author": "Victor Andrée <hej@victorandree.se>",
+  "license": "BSD",
+
+  "dependencies": {
+    "express": "3.x"
+  }
+}
