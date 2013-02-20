@@ -16,6 +16,7 @@
   "license": "BSD",
 
   "dependencies": {
-    "express": "3.x"
+    "express": "3.x",
+    "express-resource": "1.x"
   }
 }
