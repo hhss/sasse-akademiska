@@ -48,6 +48,10 @@ app.configure(function() {
     .use(express.cookieParser(app.get('session secret')))
     .use(express.session())
     .use(function(req, res, next) {
+      req.isAuthenticated = function() {
+        return this.session.user && this.session.user.id
+      }
+
       res.expose(req.session.user || {}, 'user', 'userJS')
       res.locals.user = req.session.user || {}
       next()
