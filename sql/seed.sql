@@ -24,24 +24,27 @@ VALUES
   ('314', 'Business Strategy');
 
 INSERT INTO "course_page"
-  (course_id)
+  (course_id, body)
 VALUES
-  ('404'),
-  ('210'),
-  ('317'),
-  ('601'),
-  ('602'),
-  ('300'),
-  ('211'),
-  ('301'),
-  ('700'),
-  ('313'),
-  ('191'),
-  ('302'),
-  ('192'),
-  ('407'),
-  ('730'),
-  ('314');
+  ('404',
+    E'Lorem ipsum dolor sit amet, consectetuer adipiscing elit.\n'
+    '\n'
+    '*Lorem ipsum dolor sit amet*, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium.'),
+  ('210', ''),
+  ('317', ''),
+  ('601', ''),
+  ('602', ''),
+  ('300', ''),
+  ('211', ''),
+  ('301', ''),
+  ('700', ''),
+  ('313', ''),
+  ('191', ''),
+  ('302', ''),
+  ('192', ''),
+  ('407', ''),
+  ('730', ''),
+  ('314', '');
 
 INSERT INTO "course_contribution"
   (course_id, user_id, contribution)

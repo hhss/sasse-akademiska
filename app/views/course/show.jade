@@ -1,0 +1,17 @@
+extends ../layout
+
+block content
+  hgroup
+    h1= course.id
+    h2= course.name
+
+  p
+    if course.contributions
+      | by 
+      each contributor in course.contributions
+        a(href="/")= contributor.name
+        | ; 
+    | Updated 
+    time #{course.page.updated_at}
+
+  div.body!= md(course.page.body)

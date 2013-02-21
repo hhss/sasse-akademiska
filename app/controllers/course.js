@@ -1,7 +1,10 @@
+var marked = require('marked');
+
 // todo express resource doesn't use req.accepts()/req.accepted but it really should
 exports.show = {
   html: function(req, res) {
-    res.send("course show");
+    res.locals.md = marked
+    res.render('course/show', { course: req.course })
   },
   json: function(req, res) {
     res.send(req.course);
@@ -18,7 +21,7 @@ exports.index = function(req, res) {
       switch(req.format) {
         default:
         case 'html':
-          res.send('course index');
+          res.render('course/index', { courses: courses })
           break;
         case 'json':
           res.send(courses)

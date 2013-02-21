@@ -1,0 +1,5 @@
+extends ../layout
+
+block content
+  each course in courses
+    h1 #{course.id}: #{course.name}

@@ -17,6 +17,8 @@
     "express": "3.x",
     "express-resource": "1.x",
     "any-db": "~0.3.6",
-    "pg": "~0.12.3"
+    "pg": "~0.12.3",
+    "jade": "~0.28.1",
+    "marked": "~0.2.8"
   }
 }
