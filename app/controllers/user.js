@@ -1,5 +1,5 @@
 exports.show = function(req, res) {
-  res.send(req.user)
+  res.render('user/show')
 }
 
 exports.load = function(req, res, next) {
