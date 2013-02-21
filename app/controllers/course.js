@@ -1,9 +1,9 @@
 exports.show = {
-  json: function(req, res) {
-    res.send(req.course);
-  },
   html: function(req, res) {
     res.send("course show");
+  },
+  json: function(req, res) {
+    res.send(req.course);
   }
 }
 
