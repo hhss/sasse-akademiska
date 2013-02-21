@@ -10,10 +10,14 @@ html
 
   body
     block user
-      span= user.id
-      |  
-      button.login Sign in with your Email
-      button.logout Sign out
+      span
+        =user.id
+        |  
+      
+      if !user.id
+        button.login Sign in with your Email
+      else
+        button.logout Sign out
 
     block content
 
