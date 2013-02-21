@@ -18,6 +18,7 @@ _ = require('underscore')
 
 var express = require('express')
   , Resource = require('express-resource')
+  , expose = require('express-expose')
 
 var app = express()
 
@@ -41,8 +42,16 @@ app.configure(function() {
   app
     .use(express.logger('dev'))
     .use(express.favicon())
+    .use(express.static(__dirname + '/public'))
     .use(express.bodyParser())
     .use(express.methodOverride())
+    .use(express.cookieParser(app.get('session secret')))
+    .use(express.session())
+    .use(function(req, res, next) {
+      res.expose(req.session.user || {}, 'user', 'userJS')
+      res.locals.user = req.session.user || {}
+      next()
+    })
     .use(app.router)
 });
 

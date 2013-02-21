@@ -6,9 +6,18 @@ html
     title Akademiska 2
     link(rel="stylesheet", href="/stylesheets/style.css")
     script(src="http://code.jquery.com/jquery-1.9.1.min.js")
+    script!= userJS
 
   body
+    block user
+      span= user.id
+      |  
+      button.login Sign in with your Email
+      button.logout Sign out
+
     block content
 
     block footer
+      script(src="https://login.persona.org/include.js")
+      script(src="/scripts/main.js")
 
