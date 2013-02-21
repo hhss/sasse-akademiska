@@ -17,6 +17,7 @@ private configuration.
 _ = require('underscore')
 
 var express = require('express')
+  , Resource = require('express-resource')
 
 var app = express()
 
@@ -44,6 +45,10 @@ app.configure(function() {
     .use(express.methodOverride())
     .use(app.router)
 });
+
+// configure routes
+// most routes are resource routes using express-resource.
+require('./app/routes')(app)
 
 // run the app if we're not being used for something else.
 if (!module.parent) {
