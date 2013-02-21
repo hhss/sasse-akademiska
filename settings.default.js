@@ -4,4 +4,7 @@ module.exports = {
   session_secret: "keyboard cat",
   views: __dirname + '/app/views',
   "view engine": "jade",
+
+  // override in settings.local.js (any-db format)
+  dbURL: null
 }

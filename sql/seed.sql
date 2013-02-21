@@ -1,3 +1,8 @@
+INSERT INTO "user"
+  (id, name, role)
+VALUES
+  ('22584@student.hhs.se', 'Victor Andrée', 'admin');
+
 INSERT INTO "course"
   (id, name)
 VALUES
@@ -37,3 +42,9 @@ VALUES
   ('407'),
   ('730'),
   ('314');
+
+INSERT INTO "course_contribution"
+  (course_id, user_id, contribution)
+VALUES
+  ('404', '22584@student.hhs.se', 100),
+  ('407', '22584@student.hhs.se', 100);

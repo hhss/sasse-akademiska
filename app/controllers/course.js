@@ -1,3 +1,4 @@
+// todo express resource doesn't use req.accepts()/req.accepted but it really should
 exports.show = {
   html: function(req, res) {
     res.send("course show");
@@ -7,17 +8,50 @@ exports.show = {
   }
 }
 
+exports.index = function(req, res) {
+  var app = req.app
+  var courses = []
+
+  app.db.query("SELECT * FROM akademiska.course c")
+    .on('row', function(row) { courses.push(row) })
+    .on('end', function() {
+      switch(req.format) {
+        default:
+        case 'html':
+          res.send('course index');
+          break;
+        case 'json':
+          res.send(courses)
+          break;
+      }
+    })
+}
+
 exports.load = function(req, id, fn) {
-  fn(null, {
-    id: "404",
-    name: "Microeconomics",
-    url_sse: "http://courseweb.hhs.se",
-    page: {
-      updated_at: new Date(),
-      body: "markdown body"
-    },
-    authors: [
-      { id: "hej@victorandree.se", name: "Victor Andrée", contribution: 100 }
-    ]
-  });
+  var app = req.app
+
+  // todo can run in parallel and handwritten SQL isn't as nice as I thought
+  app.db.query(
+    "SELECT * FROM akademiska.course c INNER JOIN akademiska.course_page cp ON c.id = cp.course_id WHERE c.id = $1 LIMIT 1", [id], function(err, res) {
+      if (err || !res.rows.length) { return fn(null, null); }
+
+      var r = res.rows[0];
+      var contributions = [];
+
+      app.db.query("SELECT u.id, u.name, c.contribution FROM akademiska.course_contribution c INNER JOIN akademiska.\"user\" u ON c.user_id = u.id WHERE c.course_id = $1", [r.id])
+        .on('row', function(row) { contributions.push(row); })
+        .on('end', function() {
+          fn(null, {
+            id: r.id,
+            name: r.name,
+            url_sse: r.url_sse,
+            page: {
+              updated_at: r.updated_at,
+              body: r.body
+            },
+            contributions: contributions
+          })
+        })
+    }
+  );
 }

@@ -56,13 +56,24 @@ require('./app/routes')(app)
 
 // run the app if we're not being used for something else.
 if (!module.parent) {
-  app.listen(app.get('port'), app.get('host'), function() {
+  var dbPool = require('any-db').createPool(app.get('dbURL'))
+  app.db = dbPool
+
+  var server = app.listen(app.get('port'), app.get('host'), function() {
     console.log('akademiska listening intently on %s:%d in "%s"',
       app.get('host'),
       app.get('port'),
       app.get('env')
     )
     console.log()
+  })
+
+  process.on('SIGINT', function() {
+    console.log()
+    console.log("shutting down akademiska (ctrl+c)")
+
+    dbPool.close()
+    server.close()
   })
 }
 

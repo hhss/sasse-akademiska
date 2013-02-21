@@ -12,4 +12,4 @@ CREATE SCHEMA akademiska;
 SET search_path TO akademiska, public;
 
 \i schema.sql
-\i seed/course.sql
+\i seed.sql
