@@ -15,7 +15,7 @@ exports.index = function(req, res) {
   var app = req.app
   var courses = []
 
-  app.db.query("SELECT * FROM akademiska.course c")
+  app.db.query("SELECT * FROM akademiska.course c ORDER BY c.id")
     .on('row', function(row) { courses.push(row) })
     .on('end', function() {
       switch(req.format) {
