@@ -16,7 +16,13 @@ exports.index = function(req, res) {
   var courses = []
 
   app.db.query("SELECT * FROM akademiska.course c ORDER BY c.id")
-    .on('row', function(row) { courses.push(row) })
+    .on('row', function(row) {
+      courses.push({
+        id: row.id,
+        name: row.name,
+        url_sse: url_sse(row)
+      })
+    })
     .on('end', function() {
       switch(req.format) {
         default:
