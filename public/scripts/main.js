@@ -11,7 +11,7 @@ $(function() {
       $.post('/auth/login', { assertion: assertion })
         .done(function() { window.location.reload() })
         .fail(function(xhr, status, err) {
-          console.log(status + " " + err)
+          $("#user").html('log in failed')
         })
     },
     onlogout: function() {

@@ -2,6 +2,10 @@ var https = require('https')
   , querystring = require('querystring')
 
 exports.login = function(req, res) {
+  var app = req.app;
+
+  req.session.user = null;
+
   if (!req.body || !req.body.assertion) {
     return res.send(400)
   }
@@ -32,11 +36,20 @@ exports.login = function(req, res) {
       var verified = JSON.parse(data)
 
       if (verified.status == 'okay') {
-        req.session.user = { id: verified.email }
-        return res.redirect('/')
+        if (verified.email.indexOf('@student.hhs.se') === -1) {
+          return res.send(403, { status: "failure", reason: "only @student.hhs.se e-mail allowed" })
+        }
+        else {
+          app.db.query('SELECT name, role FROM akademiska."user" WHERE id = $1', [verified.email])
+            .on('row', function(row) {
+              req.session.user = { id: verified.email, name: row.name, role: row.role }
+              res.redirect('/')
+            })
+        }
       }
-
-      res.send(403, data)
+      else {
+        res.send(403, data)
+      }
     })
   }
 }

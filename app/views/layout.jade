@@ -10,10 +10,9 @@ html
 
   body
     block user
-      span
+      span#user
         =user.id
-        |  
-      
+      |  
       if !user.id
         button.login Sign in with your Email
       else
