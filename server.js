@@ -46,6 +46,10 @@ app.configure(function() {
     .use(app.router)
 });
 
+app.configure('development', function() {
+  app.use(express.errorHandler())
+})
+
 // configure routes
 // most routes are resource routes using express-resource.
 require('./app/routes')(app)
