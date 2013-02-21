@@ -14,4 +14,7 @@ block content
     | Updated 
     time #{course.page.updated_at}
 
+  if course.url_sse
+    a(href=course.url_sse) Course Web
+  
   div.body!= md(course.page.body)

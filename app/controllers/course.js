@@ -47,7 +47,7 @@ exports.load = function(req, id, fn) {
           fn(null, {
             id: r.id,
             name: r.name,
-            url_sse: r.url_sse,
+            url_sse: url_sse(r),
             page: {
               updated_at: r.updated_at,
               body: r.body
@@ -57,4 +57,15 @@ exports.load = function(req, id, fn) {
         })
     }
   );
+}
+
+// url === null -> autodetermine
+// url === "" -> no course web available
+// else -> use given value
+// arguably belongs in our model layer: the database
+function url_sse(course) {
+  if (course.url_sse === null) {
+    return "https://studentweb2.hhs.se/CourseWeb/CourseWebSSE/CWSSE.ASP?WCI=News&CourseNr=" + course.id;
+  }
+  return course.url_sse;
 }
