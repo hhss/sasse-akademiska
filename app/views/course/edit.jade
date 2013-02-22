@@ -1,0 +1,19 @@
+extends ../layout
+
+block content
+  h1 Edit #{course.id}
+
+  form(method="post", action="../")
+    input(type="hidden", name="_method", value="put")
+      
+    .control-group
+      label(for="f-name") Name
+      input#f-name(name="name", value=course.name)
+
+    .control-group
+      label(for="f-body") Body
+      textarea#f-body(name="body", rows="16", cols="80")= course.page.body
+
+    div.form-actions
+      button.btn.btn-primary(type="submit") Submit
+

@@ -8,7 +8,7 @@ module.exports = function(app) {
   app.post('/auth/login', auth.login)
   app.post('/auth/logout', auth.logout)
 
-  app.all('/courses*', login.ensureLoggedIn('/'))
+  //app.all('/courses*', login.ensureLoggedIn('/'))
   app.resource('courses', require('./controllers/course.js'))
 
   // because express-resource treats everything after the last period

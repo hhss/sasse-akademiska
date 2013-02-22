@@ -36,6 +36,10 @@ exports.index = function(req, res) {
     })
 }
 
+exports.edit = function(req, res) {
+  res.render('course/edit', { course: req.course })
+}
+
 exports.load = function(req, id, fn) {
   var app = req.app
 
