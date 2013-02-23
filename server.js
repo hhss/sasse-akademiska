@@ -17,7 +17,6 @@ private configuration.
 _ = require('underscore')
 
 var express = require('express')
-  , Resource = require('express-resource')
   , expose = require('express-expose')
 
 var app = express()
@@ -64,7 +63,6 @@ app.configure('development', function() {
 })
 
 // configure routes
-// most routes are resource routes using express-resource.
 require('./app/routes')(app)
 
 // run the app if we're not being used for something else.

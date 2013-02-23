@@ -1,14 +1,13 @@
-var marked = require('marked');
+var marked = require('marked')
 
-// todo express resource doesn't use req.accepts()/req.accepted but it really should
-exports.show = {
-  html: function(req, res) {
-    res.locals.md = marked
-    res.render('course/show', { course: req.course })
-  },
-  json: function(req, res) {
-    res.send(req.course);
-  }
+exports.show = function(req, res) {
+  res.format({
+    html: function() {
+      res.locals.md = marked
+      res.render('course/show', { course: req.course })
+    },
+    json: function() { res.send(req.course) }
+  })
 }
 
 exports.index = function(req, res) {
@@ -24,15 +23,12 @@ exports.index = function(req, res) {
       })
     })
     .on('end', function() {
-      switch(req.format) {
-        default:
-        case 'html':
+      res.format({
+        html: function() {
           res.render('course/index', { courses: courses })
-          break;
-        case 'json':
-          res.send(courses)
-          break;
-      }
+        },
+        json: function() { res.send(courses) }
+      })
     })
 }
 
@@ -40,21 +36,25 @@ exports.edit = function(req, res) {
   res.render('course/edit', { course: req.course })
 }
 
-exports.load = function(req, id, fn) {
-  var app = req.app
+exports.update = function(req, res) {
+  res.send(200)
+}
 
-  // todo can run in parallel and handwritten SQL isn't as nice as I thought
-  app.db.query(
+exports.load = function(req, res, next) {
+  var id = req.param('id')
+
+  var db = req.app.db
+  db.query(
     "SELECT * FROM akademiska.course c INNER JOIN akademiska.course_page cp ON c.id = cp.course_id WHERE c.id = $1 LIMIT 1", [id], function(err, res) {
-      if (err || !res.rows.length) { return fn(null, null); }
+      if (err || !res.rows.length) { return next(404) }
 
-      var r = res.rows[0];
-      var contributions = [];
+      var r = res.rows[0]
+      var contributions = []
 
-      app.db.query("SELECT u.id, u.name, c.contribution FROM akademiska.course_contribution c INNER JOIN akademiska.\"user\" u ON c.user_id = u.id WHERE c.course_id = $1", [r.id])
-        .on('row', function(row) { contributions.push(row); })
+      db.query("SELECT u.id, u.name, c.contribution FROM akademiska.course_contribution c INNER JOIN akademiska.\"user\" u ON c.user_id = u.id WHERE c.course_id = $1", [r.id])
+        .on('row', function(row) { contributions.push(row) })
         .on('end', function() {
-          fn(null, {
+          req.course = {
             id: r.id,
             name: r.name,
             url_sse: url_sse(r),
@@ -63,10 +63,12 @@ exports.load = function(req, id, fn) {
               body: r.body
             },
             contributions: contributions
-          })
+          }
+
+          next()
         })
     }
-  );
+  )
 }
 
 // url === null -> autodetermine
