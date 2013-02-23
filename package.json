@@ -20,6 +20,7 @@
     "pg": "~0.12.3",
     "jade": "~0.28.1",
     "marked": "~0.2.8",
-    "express-expose": "~0.3.3"
+    "express-expose": "~0.3.3",
+    "express-form": "~0.8.1"
   }
 }
