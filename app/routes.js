@@ -2,12 +2,6 @@
 var root = require('./controllers/root')
   , auth = require('./controllers/auth')
   , login = require('connect-ensure-login')
-  , form = require('express-form')
-
-var formUpdate = form(
-  form.field("name").trim().required(),
-  form.field("body").trim().required()
-)
 
 module.exports = function(app) {
   app.get('/', root.index)
@@ -22,6 +16,7 @@ module.exports = function(app) {
   app.get('/courses', course.index)
   app.get('/courses/:id', course.load, course.show)
   app.get('/courses/:id/edit', course.load, course.edit)
+  app.put('/courses/:id', course.load, course.updateForm, course.update)
 
   // because express-resource treats everything after the last period
   // as the format (i.e. 22584@student.hhs.se is "22584@student.hhs" with

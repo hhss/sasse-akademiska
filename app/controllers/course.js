@@ -1,4 +1,12 @@
 var marked = require('marked')
+  , form = require('express-form')
+
+var updateForm = form(
+  form.field('name').trim().required(),
+  form.field('body').trim().required()
+)
+
+exports.updateForm = updateForm
 
 exports.show = function(req, res) {
   res.format({
@@ -37,7 +45,25 @@ exports.edit = function(req, res) {
 }
 
 exports.update = function(req, res) {
-  res.send(200)
+  if (!req.form.isValid) {
+    return res.format({
+      html: function() {
+        res.send(400)
+      },
+      json: function() {
+        res.send(400, req.form.errors)
+      }
+    })
+  } else {
+    req.app.db.query('UPDATE akademiska.course SET name = $1 WHERE id = $2', [req.form.name, req.course.id], function(err, r) {
+      if (err) { console.log(err); return res.send(500) }
+
+      req.app.db.query('UPDATE akademiska.course_page SET body = $1 WHERE course_id = $2', [req.form.body, req.course.id], function(err, r) {
+        if (err) { console.log(err); return res.send(500) }
+        res.redirect('courses/' + req.course.id)
+      })
+    })
+  }
 }
 
 exports.load = function(req, res, next) {
