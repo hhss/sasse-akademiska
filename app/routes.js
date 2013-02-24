@@ -8,8 +8,15 @@ module.exports = function(app) {
   app.post('/auth/login', auth.login)
   app.post('/auth/logout', auth.logout)
 
-  app.all('/courses*', login.ensureLoggedIn('/'))
-  app.resource('courses', require('./controllers/course.js'))
+  // temporary disabled while working on this because the cookie
+  // is invalidated on every restart of the server
+  // app.all('/courses*', login.ensureLoggedIn('/'))
+
+  var course = require('./controllers/course')
+  app.get('/courses', course.index)
+  app.get('/courses/:id', course.load, course.show)
+  app.get('/courses/:id/edit', course.load, course.edit)
+  app.put('/courses/:id', course.load, course.formEdit, course.update)
 
   // because express-resource treats everything after the last period
   // as the format (i.e. 22584@student.hhs.se is "22584@student.hhs" with

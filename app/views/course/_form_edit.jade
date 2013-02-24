@@ -1,0 +1,17 @@
+if form.errors
+  each error in form.errors
+    p.error= error
+
+form(method="post", action="/courses/" + course.id )
+  input(type="hidden", name="_method", value="put")
+
+  .control-group
+    label(for="f-name") Name
+    input#f-name(type="text", name="name", value=form.name)
+
+  .control-group
+    label(for="f-page-body") Body
+    textarea#f-page-body(name="page[body]", cols=80, rows=16)= form.page.body
+    
+  div.form-actions
+    button.btn.btn-primary(type="submit") Submit

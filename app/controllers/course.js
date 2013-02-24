@@ -1,14 +1,23 @@
-var marked = require('marked');
+var marked = require('marked')
+  , form = require('express-form')
 
-// todo express resource doesn't use req.accepts()/req.accepted but it really should
-exports.show = {
-  html: function(req, res) {
-    res.locals.md = marked
-    res.render('course/show', { course: req.course })
-  },
-  json: function(req, res) {
-    res.send(req.course);
-  }
+var formEdit = form(
+  form.field('name').trim().required(),
+  form.field('page.body').trim().required(),
+  form.field('never valid').required()
+)
+form.configure({ autoLocals: false })
+
+exports.formEdit = formEdit
+
+exports.show = function(req, res) {
+  res.format({
+    html: function() {
+      res.locals.md = marked
+      res.render('course/show', { course: req.course })
+    },
+    json: function() { res.send(req.course) }
+  })
 }
 
 exports.index = function(req, res) {
@@ -24,33 +33,56 @@ exports.index = function(req, res) {
       })
     })
     .on('end', function() {
-      switch(req.format) {
-        default:
-        case 'html':
+      res.format({
+        html: function() {
           res.render('course/index', { courses: courses })
-          break;
-        case 'json':
-          res.send(courses)
-          break;
-      }
+        },
+        json: function() { res.send(courses) }
+      })
     })
 }
 
-exports.load = function(req, id, fn) {
-  var app = req.app
+exports.edit = function(req, res) {
+  res.render('course/edit', { course: req.course, form: req.course })
+}
 
-  // todo can run in parallel and handwritten SQL isn't as nice as I thought
-  app.db.query(
+exports.update = function(req, res) {
+  if (!req.form.isValid) {
+    return res.format({
+      html: function() {
+        res.render('course/edit', { course: req.course, form: req.form })
+      },
+      json: function() {
+        res.send(400, req.form.errors)
+      }
+    })
+  } else {
+    req.app.db.query('UPDATE akademiska.course SET name = $1 WHERE id = $2', [req.form.name, req.course.id], function(err, r) {
+      if (err) { console.log(err); return res.send(500) }
+
+      req.app.db.query('UPDATE akademiska.course_page SET body = $1 WHERE course_id = $2', [req.form.body, req.course.id], function(err, r) {
+        if (err) { console.log(err); return res.send(500) }
+        res.redirect('courses/' + req.course.id)
+      })
+    })
+  }
+}
+
+exports.load = function(req, res, next) {
+  var id = req.param('id')
+
+  var db = req.app.db
+  db.query(
     "SELECT * FROM akademiska.course c INNER JOIN akademiska.course_page cp ON c.id = cp.course_id WHERE c.id = $1 LIMIT 1", [id], function(err, res) {
-      if (err || !res.rows.length) { return fn(null, null); }
+      if (err || !res.rows.length) { return next(404) }
 
-      var r = res.rows[0];
-      var contributions = [];
+      var r = res.rows[0]
+      var contributions = []
 
-      app.db.query("SELECT u.id, u.name, c.contribution FROM akademiska.course_contribution c INNER JOIN akademiska.\"user\" u ON c.user_id = u.id WHERE c.course_id = $1", [r.id])
-        .on('row', function(row) { contributions.push(row); })
+      db.query("SELECT u.id, u.name, c.contribution FROM akademiska.course_contribution c INNER JOIN akademiska.\"user\" u ON c.user_id = u.id WHERE c.course_id = $1", [r.id])
+        .on('row', function(row) { contributions.push(row) })
         .on('end', function() {
-          fn(null, {
+          req.course = {
             id: r.id,
             name: r.name,
             url_sse: url_sse(r),
@@ -59,10 +91,12 @@ exports.load = function(req, id, fn) {
               body: r.body
             },
             contributions: contributions
-          })
+          }
+
+          next()
         })
     }
-  );
+  )
 }
 
 // url === null -> autodetermine
