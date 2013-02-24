@@ -3,8 +3,7 @@ var marked = require('marked')
 
 var formEdit = form(
   form.field('name').trim().required(),
-  form.field('page.body').trim().required(),
-  form.field('never valid').required()
+  form.field('page.body').trim().required()
 )
 form.configure({ autoLocals: false })
 
@@ -60,7 +59,7 @@ exports.update = function(req, res) {
     req.app.db.query('UPDATE akademiska.course SET name = $1 WHERE id = $2', [req.form.name, req.course.id], function(err, r) {
       if (err) { console.log(err); return res.send(500) }
 
-      req.app.db.query('UPDATE akademiska.course_page SET body = $1 WHERE course_id = $2', [req.form.body, req.course.id], function(err, r) {
+      req.app.db.query('UPDATE akademiska.course_page SET body = $1 WHERE course_id = $2', [req.form.page.body, req.course.id], function(err, r) {
         if (err) { console.log(err); return res.send(500) }
         res.redirect('courses/' + req.course.id)
       })
