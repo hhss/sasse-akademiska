@@ -56,13 +56,15 @@ exports.update = function(req, res) {
       }
     })
   } else {
-    req.app.db.query('UPDATE akademiska.course SET name = $1 WHERE id = $2', [req.form.name, req.course.id], function(err, r) {
-      if (err) { console.log(err); return res.send(500) }
+    var tx = req.app.db.begin()
+    // todo should be wrapped in once?
+    tx.on('error', function(err) { console.log(err); res.send(500) })
+    tx.query('UPDATE akademiska.course SET name = $1 WHERE id = $2', [req.form.name, req.course.id])
+    tx.query('UPDATE akademiska.course_page SET body = $1 WHERE course_id = $2', [req.form.page.body, req.course.id])
 
-      req.app.db.query('UPDATE akademiska.course_page SET body = $1 WHERE course_id = $2', [req.form.page.body, req.course.id], function(err, r) {
-        if (err) { console.log(err); return res.send(500) }
-        res.redirect('courses/' + req.course.id)
-      })
+    tx.commit(function(err) {
+      if (err) return res.send(500);
+      res.redirect('courses/' + req.course.id)
     })
   }
 }
