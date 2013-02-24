@@ -46,6 +46,8 @@ app.configure(function() {
     .use(express.methodOverride())
     .use(express.cookieParser(app.get('session secret')))
     .use(express.session())
+
+    // sets up authentication
     .use(function(req, res, next) {
       req.isAuthenticated = function() {
         return this.session.user && this.session.user.id
@@ -53,6 +55,36 @@ app.configure(function() {
 
       res.expose(req.session.user || {}, 'user', 'userJS')
       res.locals.user = req.session.user || {}
+      next()
+    })
+
+    // sets up a "helper" for reconstructing URLs
+    // very primitive, uses same semantics as app.redirect
+    .use(function(req, res, next) {
+      app.url = function(url) {
+        // interpolation
+        var obj = arguments[arguments.length - 1]
+        for (name in obj) {
+          url = url.replace(":" + name, obj[name])
+        }
+
+        // interpretation
+        if (!~url.indexOf('://') && 0 != url.indexOf('//')) {
+          var path = app.path();
+
+          // relative to path
+          if ('.' == url[0]) {
+            url = req.path + '/' + url;
+          // relative to mount-point
+          } else if ('/' != url[0]) {
+            url = path + '/' + url;
+          }
+        }
+
+        return url
+      }
+
+      app.locals.url = app.url
       next()
     })
     .use(app.router)

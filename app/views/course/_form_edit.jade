@@ -2,7 +2,7 @@ if form.errors
   each error in form.errors
     p.error= error
 
-form(method="post", action="/courses/" + course.id )
+form(method="post", action=url('courses/:id', { id: course.id }))
   input(type="hidden", name="_method", value="put")
 
   .control-group
