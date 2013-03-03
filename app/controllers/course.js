@@ -1,5 +1,6 @@
 var marked = require('marked')
   , form = require('express-form')
+  , s = require('../sql')
 
 var formEdit = form(
   form.field('name').trim().required(),
@@ -23,7 +24,7 @@ exports.index = function(req, res) {
   var app = req.app
   var courses = []
 
-  app.db.query("SELECT * FROM akademiska.course c ORDER BY c.id")
+  app.db.query(s.course.select(s.course.star()).from(s.course).toQuery().text)
     .on('row', function(row) {
       courses.push({
         id: row.id,
@@ -71,33 +72,42 @@ exports.update = function(req, res) {
 
 exports.load = function(req, res, next) {
   var id = req.param('id')
-
   var db = req.app.db
-  db.query(
-    "SELECT * FROM akademiska.course c INNER JOIN akademiska.course_page cp ON c.id = cp.course_id WHERE c.id = $1 LIMIT 1", [id], function(err, res) {
-      if (err || !res.rows.length) { return next(404) }
+  var q = s.course
+    .select(s.course.star(), s.course_page.star())
+    .from(s.course.join(s.course_page).on(s.course.id.equals(s.course_page.course_id)))
+    .where(s.course.id.equals(id))
+    .limit(1)
+    .toQuery()
 
-      var r = res.rows[0]
-      var contributions = []
+  db.query(q.text, q.values, function(err, res) {
+    if (err || !res.rows.length) { return next(404) }
 
-      db.query("SELECT u.id, u.name, c.contribution FROM akademiska.course_contribution c INNER JOIN akademiska.\"user\" u ON c.user_id = u.id WHERE c.course_id = $1", [r.id])
-        .on('row', function(row) { contributions.push(row) })
-        .on('end', function() {
-          req.course = {
-            id: r.id,
-            name: r.name,
-            url_sse: url_sse(r),
-            page: {
-              updated_at: r.updated_at,
-              body: r.body
-            },
-            contributions: contributions
-          }
+    var r = res.rows[0]
+    var contributions = []
+    var q2 = s.course_contribution
+      .select(s.user.id, s.user.name, s.course_contribution.contribution)
+      .from(s.course_contribution.join(s.user).on(s.course_contribution.user_id.equals(s.user.id)))
+      .where(s.course_contribution.course_id.equals(r.id))
+      .toQuery()
 
-          next()
-        })
-    }
-  )
+    db.query(q2.text, q2.values)
+      .on('row', function(row) { contributions.push(row) })
+      .on('end', function() {
+        req.course = {
+          id: r.id,
+          name: r.name,
+          url_sse: url_sse(r),
+          page: {
+            updated_at: r.updated_at,
+            body: r.body
+          },
+          contributions: contributions
+        }
+
+        next()
+      })
+  })
 }
 
 // url === null -> autodetermine
